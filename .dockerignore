@@ -1,0 +1,19 @@
+# .dockerignore
+*.log
+.env
+*.csv
+*.log
+*.pyc
+*.db
+.DS_Store
+.dockerignore
+.git
+.gitignore
+venv/
+
+
+
+!.env-Sample
+!README.md
+!LICENSE
+!assets/

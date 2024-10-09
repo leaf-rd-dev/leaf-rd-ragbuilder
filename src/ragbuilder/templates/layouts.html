@@ -1,0 +1,1024 @@
+{% set modal %}
+{% block modal_block %}
+<!-- New Project Modal -->
+<div class="modal fade" id="newProjectModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="newProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="newProjectModalLabel">New Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <form id="newProjectForm">
+                        <div id="step1">
+                            <div class="mt-3">
+                                <p class="fw-light text-muted small">
+                                    Please provide a brief description of your use-case, input the path to your data (URL, directory or file), and select the methods for building RAG configurations.
+                                </p>
+                            </div>
+                            <div class="form-group row mb-4 mt-4">
+                                <label for="description" class="col-sm-2 col-form-label">Description:</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="description" placeholder="Q&A Chatbot for internal employees">
+                                </div>
+                            </div>
+                            <div class="form-group row mb-4">
+                                <label for="sourceData" class="col-sm-2 col-form-label">Source data: </label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="sourceData" placeholder="~/development/src_data">
+                                    <span id="sourceDataError"></span>
+                                    <small id="dataSizeInfo" class="form-text fw-light text-muted" style="display: none;"></small>
+                                </div>
+                            </div>
+                            <div class="row mt-3 mx-3">
+                                <div class="col-md-2"></div>
+                                <div class="col-md-4">
+                                    <div id="samplingOption" class="form-check mt-2" style="display: none;">
+                                        <input class="form-check-input" type="checkbox" id="useSampling">
+                                        <label class="form-check-label h6" for="useSampling">
+                                            Perform Data Sampling
+                                        </label>
+                                        <small id="samplingInfo" class="form-text fw-light text-muted" style="display: none;">
+                                            <i class="fa-solid fa-triangle-exclamation" style="color: #f4d66c;"></i> 
+                                            Note: If we'll be generating synthetic test data, it will be based on the sampled dataset for consistency.
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div id="dataPreProcessingOption" class="mt-2" style="display: none;">
+                                        <div class="treeview treeview-primary" data-mdb-selectable="true">
+                                            <ul role="tree">
+                                                <li aria-level="1" role="tree-item">
+                                                    <a class="treeview-category h6 collapsed" data-mdb-collapse-init data-mdb-target="#data-preprocessing" role="button" aria-expanded="false">
+                                                        <i class="fas fa-angle-right chevron-icon mx-1"></i>
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="dataPreprocessing" unchecked>
+                                                        Perform Data Pre-processing
+                                                    </a>
+                                                    <ul class="collapse" id="data-preprocessing" role="group">
+                                                        <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                            <input type="checkbox" class="mx-1 form-check-input" id="gpp:remove_stopwords" unchecked> Remove Stopwords
+                                                        </li>
+                                                        <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                            <input type="checkbox" class="mx-1 form-check-input" id="gpp:strip_tags" unchecked> Strip tags
+                                                        </li>
+                                                        <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                            <input type="checkbox" class="mx-1 form-check-input" id="gpp:strip_punctuation" unchecked> Strip Punctuation
+                                                        </li>
+                                                        <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                            <input type="checkbox" class="mx-1 form-check-input" id="gpp:strip_multiple_whitespaces" unchecked> Strip multiple whitespaces
+                                                        </li>
+                                                        <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                            <input type="checkbox" class="mx-1 form-check-input" id="gpp:stem_text" unchecked> Stem text
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <p>Options:</p>
+                            </div>
+                            <fieldset class="row">
+                                <legend class="col-form-label col-sm-2 py-0"></legend>
+                                <div class="col-sm-10">
+                                    <div class="form-group form-check form-switch mb-2">
+                                        <input type="checkbox" class="form-check-input" id="compareTemplates" checked>
+                                        <label class="form-check-label" for="compareTemplates">Use Pre-defined RAG Templates</label>
+                                    </div>
+                                    <div class="form-group form-check form-switch mb-2">
+                                        <input type="checkbox" class="form-check-input" id="includeNonTemplated" checked>
+                                        <label class="form-check-label" for="includeNonTemplated">Create Custom RAG Configurations</label>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-primary me-md-2 mt-5 mb-3" id="nextStep1">Next</button>
+                            </div>
+                        </div>
+                        <div id="step1b" class="container-fluid" style="display: none;">
+                            <h5>Select RAG Templates</h5>
+                            <div class="mt-3">
+                                Select the pre-defined RAG templates you'd like to include in your evaluation:
+                            </div>
+                            <div id="templatesList" class="mt-4 mx-3">
+                                <!-- Templates will be dynamically populated here -->
+                            </div>
+                            <div class="row mt-5 mx-3 gx-5">
+                                <div class="col-md-6">
+                                    <h6>Embedding Model</h6>
+                                    <div class="form-group mb-4">
+                                        <select class="form-select" id="sotaEmbeddingModel">
+                                            <optgroup label="OpenAI">
+                                                <option value="text-embedding-3-small">text-embedding-3-small</option>
+                                                <option value="text-embedding-3-large" selected>text-embedding-3-large</option>
+                                                <option value="text-embedding-ada-002">text-embedding-ada-002</option>
+                                            </optgroup>
+                                            <option value="HF">HuggingFace</option>
+                                            <option value="AzureOAI">Azure OpenAI</option>
+                                            <option value="GoogleVertexAI">Google Vertex AI</option>
+                                            <option value="Ollama">Ollama</option>
+                                        </select>
+                                        <input type="text" class="form-control mt-2" id="customSotaEmbeddingModel" style="display: none;" placeholder="Enter Model name e.g., mxbai-embed-large">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>LLM</h6>
+                                    <div class="form-group mb-4">
+                                        <select class="form-select" id="sotaLLMModel">
+                                            <optgroup label="OpenAI">
+                                                <option value="gpt-4o-mini" selected>GPT-4o mini</option>
+                                                <option value="gpt-4o">GPT-4o</option>
+                                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                                <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                            </optgroup>
+                                            <option value="HF">HuggingFace</option>
+                                            <option value="Groq">Groq</option>
+                                            <option value="AzureOAI">Azure OpenAI</option>
+                                            <option value="GoogleVertexAI">Google Vertex AI</option>
+                                            <option value="Ollama">Ollama</option>
+                                        </select>
+                                        <input type="text" class="form-control mt-2" id="customSotaLLMModel" style="display: none;" placeholder="Enter LLM model name e.g., llama-3.1-405B">
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                                <button type="button" class="btn btn-secondary my-3 me-md-2" id="previousStep1b">Back</button>
+                                <button type="button" class="btn btn-primary my-3 me-md-2" id="nextStep1b">Next</button>
+                            </div>
+                        </div>
+                        <div id="step2" style="display: none;" class="container-fluid">
+                            <h5>Detailed RAG parameters</h5>
+                            <div class="mt-3">
+                                <p class="fw-light text-muted small">
+                                    To tailor your RAG configurations, you can unselect any specific options you wish to exclude (e.g., "Chunking Strategy: Character"). For best results, leave all settings unchanged and click "Next."
+                                </p>
+                            </div>
+                            <div class="row row-cols-2 mx-3">
+                                <div class="col-md-6 mt-5">
+                                    <div class="treeview treeview-primary" data-mdb-selectable="true">
+                                        <ul role="tree">
+                                            <li aria-level="1" role="tree-item">
+                                                <a class="treeview-category h6" data-mdb-collapse-init data-mdb-target="#chunking-strategy" role="button" aria-expanded="true">
+                                                    <i class="fas fa-angle-right chevron-icon mx-1"></i>
+                                                    <input type="checkbox" class="mx-1 form-check-input" id="chunkingStrategy" checked>
+                                                    Chunking Strategy
+                                                </a>
+                                                <ul class="collapse show" id="chunking-strategy" role="group">
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="markdown" checked> Markdown
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="html" checked> HTML
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="semantic" checked> Semantic
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="recursive" checked> Recursive
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="character" checked> Character
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-6 mt-5 pt-1">
+                                    <h6 class="h6">Chunk Size</h6>
+                                    <br>
+                                    <div class="slider-styled" id="chunk-size-multi-slider"></div>
+                                    <div id="chunk-size-multi-slider-value" class="mt-3 d-flex justify-content-start">
+                                        <span>Min: <span id="minValue">500</span></span>
+                                        <span style="padding-left: 220px;">Max: <span id="maxValue">2000</span></span>
+                                    </div>
+                                </div>
+                          
+                                <div class="col-md-6 mt-5">
+                                    <div class="treeview treeview-primary" data-mdb-selectable="true">
+                                        <ul role="tree">
+                                            <li aria-level="1" role="tree-item">
+                                                <a class="treeview-category h6" data-mdb-collapse-init data-mdb-target="#embedding-model" role="button" aria-expanded="true">
+                                                    <i class="fas fa-angle-right chevron-icon mx-1"></i>
+                                                    <input type="checkbox" class="mx-1 form-check-input h6" id="embeddingModel" unchecked>
+                                                    Embedding Model
+                                                </a>
+                                                <ul class="collapse show" id="embedding-model" role="group">
+                                                    <li aria-level="2" role="tree-item">
+                                                        <a class="treeview-category d-flex align-items-center" data-mdb-collapse-init data-mdb-target="#openai-models" role="button" aria-expanded="true">
+                                                            <i class="fas fa-angle-right chevron-icon mx-1"></i>
+                                                            <input type="checkbox" class="mx-1 form-check-input" id="openAI">
+                                                            OpenAI
+                                                        </a>
+                                                        <ul class="collapse show" id="openai-models" role="group">
+                                                            <li aria-level="3" role="tree-item" class="treeview-category">
+                                                                <input type="checkbox" class="mx-1 form-check-input" id="embeddingSmall" unchecked> text-embedding-3-small
+                                                            </li>
+                                                            <li aria-level="3" role="tree-item" class="treeview-category">
+                                                                <input type="checkbox" class="mx-1 form-check-input" id="embeddingLarge" checked> text-embedding-3-large
+                                                            </li>
+                                                            <li aria-level="3" role="tree-item" class="treeview-category">
+                                                                <input type="checkbox" class="mx-1 form-check-input" id="embeddingAda" unchecked> text-embedding-ada-002
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mx-3 mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="embeddingHuggingFace" unchecked> HuggingFace
+                                                    </li>
+                                                    <div class="form-group row mx-3" id="embeddingHuggingFaceModelDiv" style="display: none;">
+                                                        <label for="embeddingHuggingFaceModel" class="col-sm-2 col-form-label">Model:</label>
+                                                        <div class="col-sm-10">
+                                                            <input type="text" class="form-control" id="embeddingHuggingFaceModel" placeholder="e.g., sentence-transformers/all-MiniLM-L6-v2">
+                                                        </div>
+                                                    </div>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mx-3 mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="embeddingAzureOAI" unchecked> Azure OpenAI
+                                                    </li>
+                                                    <div class="form-group row mx-3" id="embeddingAzureOAIModelDiv" style="display: none;">
+                                                        <label for="embeddingAzureOAIModel" class="col-sm-2 col-form-label">Model:</label>
+                                                        <div class="col-sm-10">
+                                                            <input type="text" class="form-control" id="embeddingAzureOAIModel" placeholder="e.g., text-embedding-ada-002">
+                                                        </div>
+                                                    </div>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mx-3 mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="embeddingGoogleVertexAI" unchecked> Google Vertex AI
+                                                    </li>
+                                                    <div class="form-group row mx-3" id="embeddingGoogleVertexAIModelDiv" style="display: none;">
+                                                        <label for="embeddingGoogleVertexAIModel" class="col-sm-2 col-form-label">Model:</label>
+                                                        <div class="col-sm-10">
+                                                            <input type="text" class="form-control" id="embeddingGoogleVertexAIModel" placeholder="e.g., textembedding-gecko@001">
+                                                        </div>
+                                                    </div>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mx-3 mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="embeddingOllama" unchecked> Ollama
+                                                    </li>
+                                                    <div class="form-group row mx-3" id="embeddingOllamaModelDiv" style="display: none;">
+                                                        <label for="embeddingOllamaModel" class="col-sm-2 col-form-label">Model:</label>
+                                                        <div class="col-sm-10">
+                                                            <input type="text" class="form-control" id="embeddingOllamaModel" placeholder="e.g., mxbai-embed-large:latest">
+                                                        </div>
+                                                    </div>
+                                                    <!-- Other embedding model options here -->
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div> 
+                    
+                                <div class="col-md-6 mt-5">
+                                    <h6 class="h6">Vector DB</h6>
+                                        <div class="form-group form-check mx-3">
+                                            <input type="radio" class="form-check-input" name="vectorDB" id="chromaDB" checked>
+                                            <label class="form-check-label" for="chromaDB">Chroma DB</label>
+                                        </div>
+                                        <div class="form-group form-check mx-3">
+                                            <input type="radio" class="form-check-input" name="vectorDB" id="faissDB" unchecked>
+                                            <label class="form-check-label" for="faissDB">FAISS DB</label>
+                                        </div>
+                                        <div class="form-group form-check mx-3">
+                                            <input type="radio" class="form-check-input" name="vectorDB" id="milvusDB" unchecked>
+                                            <label class="form-check-label" for="milvusDB">Milvus DB</label>
+                                        </div>
+                                        <div class="form-group form-check mx-3">
+                                            <input type="radio" class="form-check-input" name="vectorDB" id="pineconeDB" unchecked>
+                                            <label class="form-check-label" for="pineconeDB">Pinecone DB</label>
+                                        </div>
+                                        <div class="form-group form-check mx-3">
+                                            <input type="radio" class="form-check-input" name="vectorDB" id="pgvector" unchecked>
+                                            <label class="form-check-label" for="pgvector">PGVector</label>
+                                        </div>
+                                        <div class="form-group form-check mx-3">
+                                            <input type="radio" class="form-check-input" name="vectorDB" id="singleStoreDB" unchecked>
+                                            <label class="form-check-label" for="singleStoreDB">Singlestore DB</label>
+                                        </div>
+                                </div>
+                    
+                                <div class="col-md-6 mt-5">
+                                    <div class="treeview treeview-primary" data-mdb-selectable="true">
+                                        <ul role="tree">
+                                            <li aria-level="1" role="tree-item">
+                                                <a class="treeview-category h6" data-mdb-collapse-init data-mdb-target="#retriever-opts" role="button" aria-expanded="true">
+                                                    <i class="fas fa-angle-right chevron-icon mx-1"></i>
+                                                    <input type="checkbox" class="mx-1 form-check-input" id="retriever" checked>
+                                                    Retriever
+                                                </a>
+                                                <ul class="collapse show" id="retriever-opts" role="group">
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="vectorSimilarity" checked> Vector DB - Similarity Search
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="vectorMMR" checked> Vector DB - MMR
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="bm25Retriever" checked> BM25 Retriever
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="colbertRetriever" unchecked> Colbert Retriever
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="multiQuery" checked> Multi Query Retriever
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="parentDocFullDoc" checked> Parent Doc Retriever - Full Documents
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="parentDocLargeChunk" checked> Parent Doc Retriever - Large Chunks
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-6 mt-5">
+                                    <div class="treeview treeview-primary" data-mdb-selectable="true">
+                                        <ul role="tree">
+                                            <li aria-level="1" role="tree-item">
+                                                <a class="treeview-category h6" data-mdb-collapse-init data-mdb-target="#top-k" role="button" aria-expanded="true">
+                                                    <i class="fas fa-angle-right chevron-icon mx-1"></i>
+                                                    <input type="checkbox" class="mx-1 form-check-input" id="topk">
+                                                    Top k
+                                                </a>
+                                                <ul class="collapse show" id="top-k" role="group">
+                                                    <li aria-level="2" role="tree-item" class="treeview-category">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="topK5" checked> 5
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="topK10" unchecked> 10
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="topK20" unchecked> 20
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-6 mt-5">
+                                    <div class="treeview treeview-primary" data-mdb-selectable="true">
+                                        <ul role="tree">
+                                            <li aria-level="1" role="tree-item">
+                                                <a class="treeview-category h6" data-mdb-collapse-init data-mdb-target="#compression-opts" role="button" aria-expanded="true">
+                                                    <i class="fas fa-angle-right chevron-icon mx-1"></i>
+                                                    <input type="checkbox" class="mx-1 form-check-input" id="compression">
+                                                    Re-ranking/ Compression
+                                                </a>
+                                                <ul class="collapse show" id="compression-opts" role="group">
+                                                    <!-- <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="contextualCompression" checked> Contextual Compression
+                                                    </li> -->
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="mxbai-rerank-base-v1" checked> Mixedbread-ai/mxbai-rerank-base-v1
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="mxbai-rerank-large-v1" checked> Mixedbread-ai/mxbai-rerank-large-v1
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="bge-reranker-base" checked> BAAI/bge-reranker-base
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="flashrank" checked> Flashrank/ms-marco-MiniLM-L-12-v2
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="cohere" unchecked> Cohere/rerank-english-v3.0
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="jina" unchecked> Jina/jina-reranker-v1-base-en
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="colbert" checked> Colbert v2.0
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="rankllm" unchecked> Rankllm/gpt-4o
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="longContextReorder" checked> Long Context Reorder
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="embeddingsRedundantFilter" unchecked> Embedding Redundant Filter
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="embeddingsClusteringFilter" unchecked> Embedding Clustering Filter
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="llmChainFilter" unchecked> LLM Chain Filter
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                    
+                                <div class="col-md-6 mt-5">
+                                    <div class="treeview treeview-primary" data-mdb-selectable="true">
+                                        <ul role="tree">
+                                            <li aria-level="1" role="tree-item">
+                                                <a class="treeview-category h6" data-mdb-collapse-init data-mdb-target="#llm-opts" role="button" aria-expanded="true">
+                                                    <i class="fas fa-angle-right chevron-icon mx-1"></i>
+                                                    <input type="checkbox" class="mx-1 form-check-input h6" id="llm">
+                                                    LLM
+                                                </a>
+                                                <ul class="collapse show" id="llm-opts" role="group">
+                                                    <li aria-level="2" role="tree-item">
+                                                        <a class="treeview-category d-flex align-items-center" data-mdb-collapse-init data-mdb-target="#openai-llms" role="button" aria-expanded="true">
+                                                            <i class="fas fa-angle-right chevron-icon mx-1"></i>
+                                                            <input type="checkbox" class="mx-1 form-check-input" id="openAIllms">
+                                                            OpenAI
+                                                        </a>
+                                                        <ul class="collapse show" id="openai-llms" role="group">
+                                                            <li aria-level="3" role="tree-item" class="treeview-category">
+                                                                <input type="checkbox" class="mx-1 form-check-input" id="gpt4oMini" checked> GPT-4o mini
+                                                            </li>
+                                                            <li aria-level="3" role="tree-item" class="treeview-category">
+                                                                <input type="checkbox" class="mx-1 form-check-input" id="gpt4o" unchecked> GPT-4o
+                                                            </li>
+                                                            <li aria-level="3" role="tree-item" class="treeview-category">
+                                                                <input type="checkbox" class="mx-1 form-check-input" id="gpt35" unchecked> GPT-3.5 Turbo
+                                                            </li>
+                                                            <li aria-level="3" role="tree-item" class="treeview-category">
+                                                                <input type="checkbox" class="mx-1 form-check-input" id="gpt4Turbo" unchecked> GPT-4 Turbo
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mx-3 mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="llmHuggingFace" unchecked> HuggingFace
+                                                    </li>
+                                                    <div class="form-group row mx-2" id="llmHuggingFaceModelDiv" style="display: none;">
+                                                        <label for="llmHuggingFaceModel" class="col-sm-2 col-form-label">Model:</label>
+                                                        <div class="col-sm-10">
+                                                            <input type="text" class="form-control" id="llmHuggingFaceModel" placeholder="e.g., meta-llama/Meta-Llama-3.1-405B">
+                                                        </div>
+                                                    </div>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mx-3 mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="llmGroq" unchecked> Groq
+                                                    </li>
+                                                    <div class="form-group row mx-2" id="llmGroqModelDiv" style="display: none;">
+                                                        <label for="llmGroqModel" class="col-sm-2 col-form-label">Model:</label>
+                                                        <div class="col-sm-10">
+                                                            <input type="text" class="form-control" id="llmGroqModel" placeholder="e.g., llama3-8b-8192">
+                                                        </div>
+                                                    </div>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mx-3 mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="llmAzureOAI" unchecked> Azure OpenAI
+                                                    </li>
+                                                    <div class="form-group row mx-2" id="llmAzureOAIModelDiv" style="display: none;">
+                                                        <label for="llmAzureOAIModel" class="col-sm-2 col-form-label">Model:</label>
+                                                        <div class="col-sm-10">
+                                                            <input type="text" class="form-control" id="llmAzureOAIModel" placeholder="e.g., gpt-35-turbo">
+                                                        </div>
+                                                    </div>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mx-3 mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="llmGoogleVertexAI" unchecked> Google Vertex AI
+                                                    </li>
+                                                    <div class="form-group row mx-2" id="llmGoogleVertexAIModelDiv" style="display: none;">
+                                                        <label for="llmGoogleVertexAIModel" class="col-sm-2 col-form-label">Model:</label>
+                                                        <div class="col-sm-10">
+                                                            <input type="text" class="form-control" id="llmGoogleVertexAIModel" placeholder="e.g., gemini-1.5-pro-001">
+                                                        </div>
+                                                    </div>
+                                                    <li aria-level="2" role="tree-item" class="treeview-category mx-3 mt-1">
+                                                        <input type="checkbox" class="mx-1 form-check-input" id="llmOllama" unchecked> Ollama
+                                                    </li>
+                                                    <div class="form-group row mx-2" id="llmOllamaModelDiv" style="display: none;">
+                                                        <label for="llmOllamaModel" class="col-sm-2 col-form-label">Model:</label>
+                                                        <div class="col-sm-10">
+                                                            <input type="text" class="form-control" id="llmOllamaModel" placeholder="e.g., llama3.1:latest">
+                                                        </div>
+                                                    </div>
+                                                    <!-- Other LLM options here -->
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div> 
+                            </div> 
+                            <div class="mx-5">
+                                <h5 class="mt-5">Advanced Optimization Settings</h5>
+                                <p class="fw-light text-muted extra-small">
+                                    Ragbuilder uses Bayesian optimization for efficient hyperparameter tuning. Alternatively, you can generate and assess all parameter combinations for exhaustive insights, but this approach is long-running, costly, and computationally intensive.
+                                </p>
+                                <div class="form-group mx-3">
+                                    <div class="form-check">
+                                        <input type="radio" class="form-check-input me-2" id="bayesianOptimization" name="optimization" checked>
+                                        <label class="form-check-label" for="bayesianOptimization">Use Bayesian Optimization (Recommended)</label>
+                                    </div>
+                                    <div id="optimizationSettingsContainer" class="ms-4 row">
+                                        <div id="numRunsContainer" class="col-md-5">
+                                          <label for="numRuns" class="form-label">Number of Runs:</label>
+                                          <input type="number" class="form-control d-inline-block" id="numRuns" name="numRuns" value="50" min="1" step="1" style="width: 80px;">
+                                        </div>
+                                        <div id="nJobsContainer" class="col-md-7">
+                                          <label for="nJobs" class="form-label">Number of Parallel Jobs:</label>
+                                          <input type="number" class="form-control d-inline-block" id="nJobs" name="nJobs" value="1" min="-1" step="1" style="width: 80px;">
+                                          <p class="fw-light form-text text-muted">
+                                            If set to -1, the number is set to CPU count.<br>⚠️ Values >1 may increase the risk of rate limit errors or resource contention issues.
+                                          </p>
+                                        </div>
+                                      </div>
+                                    <!-- <div id="numRunsContainer" class="ms-5">
+                                        <label for="numRuns" class="form-label me-2">Number of Runs:</label>
+                                        <input type="number" class="form-control d-inline-block" id="numRuns" value="50" min="1" style="width: 80px;">
+                                    </div> -->
+                                </div>
+                                <div class="form-group mx-3">
+                                    <input type="radio" class="form-check-input me-2" id="fullParameterSearch" name="optimization">
+                                    <label class="form-check-label" for="fullParameterSearch">Evaluate All Possible Combinations </label>
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2 pt-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-secondary my-3 me-md-2" id="previousStep2">Back</button>
+                                <button type="button" class="btn btn-primary my-3 mx-2" id="nextStep2">Next</button>
+                            </div>
+                        </div>
+                        <div id="step3" class="container-fluid" style="display: none;">
+                            <h5>RAG Evaluation Settings</h5>
+                            <p class="fw-light text-muted extra-small">
+                                Select the RAG evaluation framework that you prefer along with other settings like Embedding model & LLM for evaluation (wherever applicable).
+                            </p>
+                            <div class="mx-5 mb-5">
+                                <div class="form-group row my-4">
+                                    <label for="evalFramework" class="col-sm-3 col-form-label">Evaluation Framework:</label>
+                                    <div class="col-sm-4">
+                                    <select class="form-select" id="evalFramework">
+                                        <option value="RAGAS" selected>RAGAS</option>
+                                        <option value="DeepEval" disabled>DeepEval [Coming soon]</option>
+                                        <option value="ARES" disabled>ARES [Coming soon]</option>
+                                        <option value="Trulens" disabled>Trulens [Coming soon]</option>
+                                    </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row mb-4">
+                                    <label for="evalEmbedding" class="col-sm-3 col-form-label">Evaluation Embedding Model:</label>
+                                    <div class="col-sm-4">
+                                    <select class="form-select" id="evalEmbedding">
+                                        <optgroup label="OpenAI">
+                                        <option value="text-embedding-3-small">text-embedding-3-small</option>
+                                        <option value="text-embedding-3-large" selected>text-embedding-3-large</option>
+                                        <option value="text-embedding-ada-002">text-embedding-ada-002</option>
+                                        </optgroup>
+                                        <option value="HF">HuggingFace</option>
+                                        <option value="AzureOAI">Azure OpenAI</option>
+                                        <option value="GoogleVertexAI">Google Vertex AI</option>
+                                        <option value="Ollama">Ollama</option>
+                                    </select>
+                                    <input type="text" class="form-control mt-2" id="customEvalEmbedding" style="display: none;" placeholder="Enter Model name e.g., mxbai-embed-large">
+                                    </div>
+                                </div>
+                                <div class="form-group row mb-4">
+                                    <label for="evalLLM" class="col-sm-3 col-form-label">Evaluation LLM:</label>
+                                    <div class="col-sm-4">
+                                    <select class="form-select" id="evalLLM">
+                                        <optgroup label="OpenAI">
+                                        <option value="gpt-4o-mini" selected>GPT-4o mini</option>
+                                        <option value="gpt-4o">GPT-4o</option>
+                                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                        </optgroup>
+                                        <option value="HF">HuggingFace</option>
+                                        <option value="Groq">Groq</option>
+                                        <option value="AzureOAI">Azure OpenAI</option>
+                                        <option value="GoogleVertexAI">Google Vertex AI</option>
+                                        <option value="Ollama">Ollama</option>
+                                    </select>
+                                    <input type="text" class="form-control mt-2" id="customEvalLLM" style="display: none;" placeholder="Enter LLM model name e.g., llama-3.1-405B">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row mb-4">
+                                    <span class="col-sm-3" style="color: #747574;">Evaluation Dataset</span>
+                                    <div class="col-sm-9">
+                                        <p id="hashLookupResult"></p>
+                                        <div id="foundExistingSynthData" style="display: none;" class="form-check">
+                                            <input class="form-check-input" type="radio" name="syntheticDataOptions" id="useExistingSynthData" value="reuse" checked>
+                                            <label class="form-check-label" for="useExistingSynthData">
+                                                Use existing synthetic test data 
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="syntheticDataOptions" id="generateSynthetic" value="generate" checked aria-describedby="synthDataHelpBlock">
+                                            <label class="form-check-label" for="generateSynthetic">
+                                                Generate synthetic test data based on my dataset
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="syntheticDataOptions" id="existingTestData" value="existing">
+                                            <label class="form-check-label" for="existingTestData">
+                                                I already have a manually created test data set
+                                            </label>
+                                        </div>
+                                        <div id="existingTestDataPath" style="display: none;" class="mt-3">
+                                            <label for="testDataPath" class="form-label">Test Data Path (csv):</label>
+                                            <input type="text" class="form-control" id="testDataPath" placeholder="Enter path to your test data">
+                                        </div>
+                                        <div id="synthDataHelpBlock" class="form-text">
+                                            You can either generate a synthetic test dataset or provide your own test dataset file (CSV format with at least 2 columns: "question" and "ground_truth"). If synthetic test data was previously generated for the specified source data, you will automatically see the option to re-use it.
+                                        </div>
+                                        <div id="generateSyntheticSection" class="mt-3">
+                                            <div id="advancedSettings" class="collapse">
+                                                <div class="accordion" id="advancedSettingsAccordion">
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="headingOne">
+                                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdv" aria-expanded="false" aria-controls="collapseAdv">
+                                                                Advanced Settings
+                                                            </button>
+                                                        </h2>
+                                                        <div id="collapseAdv" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#advancedSettingsAccordion">
+                                                            <div class="accordion-body">
+                                                                <div class="mb-3 row">
+                                                                    <label for="testSize" class="col-sm-3 col-form-label">Test size:</label>
+                                                                    <div class="col-sm-8">
+                                                                        <input type="number" class="form-control" id="testSize" value="20">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mb-3 row">
+                                                                    <label for="generatorEmbedding" class="col-sm-3 col-form-label">Embedding:</label>
+                                                                    <div class="col-sm-8">
+                                                                    <select class="form-select" id="generatorEmbedding">
+                                                                        <optgroup label="OpenAI">
+                                                                        <option value="text-embedding-3-small">text-embedding-3-small</option>
+                                                                        <option value="text-embedding-3-large" selected>text-embedding-3-large</option>
+                                                                        <option value="text-embedding-ada-002">text-embedding-ada-002</option>
+                                                                        </optgroup>
+                                                                        <option value="HF">HuggingFace</option>
+                                                                        <option value="AzureOAI">Azure OpenAI</option>
+                                                                        <option value="GoogleVertexAI">Google Vertex AI</option>
+                                                                        <option value="Ollama">Ollama</option>
+                                                                    </select>
+                                                                    <input type="text" class="form-control mt-2" id="customGenEmbedding" style="display: none;" placeholder="Enter Model name e.g., mxbai-embed-large">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mb-3 row">
+                                                                    <label for="criticLLM" class="col-sm-3 col-form-label">Critic LLM:</label>
+                                                                    <div class="col-sm-8">
+                                                                    <select class="form-select" id="criticLLM">
+                                                                        <optgroup label="OpenAI">
+                                                                        <option value="gpt-4o-mini">GPT-4o mini</option>
+                                                                        <option value="gpt-4o" selected>GPT-4o</option>
+                                                                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                                                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                                                        </optgroup>
+                                                                        <option value="HF">HuggingFace</option>
+                                                                        <option value="Groq">Groq</option>
+                                                                        <option value="AzureOAI">Azure OpenAI</option>
+                                                                        <option value="GoogleVertexAI">Google Vertex AI</option>
+                                                                        <option value="Ollama">Ollama</option>
+                                                                    </select>
+                                                                    <input type="text" class="form-control mt-2" id="customCriticLLM" style="display: none;" placeholder="Enter LLM model name e.g., llama-3.1-405B">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mb-3 row">
+                                                                    <label for="generatorLLM" class="col-sm-3 col-form-label">Generator LLM:</label>
+                                                                    <div class="col-sm-8">
+                                                                    <select class="form-select" id="generatorLLM">
+                                                                        <optgroup label="OpenAI">
+                                                                        <option value="gpt-4o-mini">GPT-4o mini</option>
+                                                                        <option value="gpt-4o" selected>GPT-4o</option>
+                                                                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                                                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                                                        </optgroup>
+                                                                        <option value="HF">HuggingFace</option>
+                                                                        <option value="Groq">Groq</option>
+                                                                        <option value="AzureOAI">Azure OpenAI</option>
+                                                                        <option value="GoogleVertexAI">Google Vertex AI</option>
+                                                                        <option value="Ollama">Ollama</option>
+                                                                    </select>
+                                                                    <input type="text" class="form-control mt-2" id="customGenLLM" style="display: none;" placeholder="Enter LLM model name e.g., llama-3.1-405B">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-secondary my-3 me-md-2" id="previousStep3">Back</button>
+                                <button type="button" class="btn btn-primary my-3 mx-2" id="nextStep3">Next</button>
+                            </div>
+                        </div>
+                        <div id="step4" class="container-fluid" style="display: none;">
+                            <h5>Review Selections</h5>
+                            <div class="my-3">
+                                <p class="fw-light text-muted small">
+                                    Please review all your configuration selections below.
+                                </p>
+                            </div>
+                            <div class="m-5" id="review"></div>
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-secondary my-3 me-md-2" id="previousStep4">Back</button>
+                                <button type="button" class="btn btn-success my-3 mx-2" id="confirmSelections">Confirm</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="progressSection" style="display: none;">
+                        <h5>Progress</h5>
+                        <div class="d-flex align-items-center justify-content-start">
+                            <span id="progressText" class="fw-light small pe-2">Initializing...</span>
+                            <div class="spinner-border spinner-border-sm ml-auto" role="status" aria-hidden="true"></div>
+                        </div>
+                        <div class="progress mb-3">
+                            <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div id="viewResultsText" class="fw-light text-muted small mb-2"></div>
+                        <button id="viewResultsBtn" class="btn btn-primary mb-3" style="display: none;">View Current Results</button>
+                        <div>
+                            <h5>Log Output:</h5>
+                            <pre id="logOutput" class="border p-3" style="height: 600px; overflow-y: scroll;"></pre>
+                        </div>
+                    </div>
+
+                    <div id="completionSection" style="display: none;">
+                        <h5>Success!</h5>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% endset %}
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% if title %}
+        <title>Krux AI - {{ title }}</title>
+    {% else %}
+        <title>Krux AI</title>
+    {% endif %}
+    
+    <!-- Bootstrap css -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.8.1/nouislider.min.css" rel="stylesheet">
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.3.2/mdb.min.css" rel="stylesheet"/>
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:400,300,700'>
+    <style>
+        body {
+            padding: 2rem;
+            font-family: 'Roboto', sans-serif !important;
+           /* background-color: #f8f9fa; */
+        } 
+        .navbar {
+            box-shadow: None; /* 2px 10px rgba(0, 0, 0, 0.03);*/
+            background-color: rgba(255, 255, 255, 0.95) !important;
+        }
+        .navbar, .navbar * {
+            font-family: 'Darker Grotesque', sans-serif;
+        }
+        .nav-link {
+            color: #555555 !important;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #333333 !important;
+        }
+        .btn-light {
+            background-color: #f0f0f0;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn-light:hover {
+            background-color: #e0e0e0;
+        }
+        .navbar-nav {
+            gap: 13px;
+            margin-right: 0 !important;
+        }
+        .nav-item {
+            margin-left: 0 !important;
+        }
+        /* .navbar {
+            background-color: #343a40;
+        } */
+        /* .navbar-brand, .nav-link {
+            color: #fff !important;
+        } */
+        .container {
+            margin-top: 60px;
+        }
+        .table-hover tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+        .tooltip-inner {
+            max-width: 300px;
+            white-space: pre-wrap;
+        }
+        .expandable-text {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .table th, .table td {
+            white-space: nowrap;
+            overflow: hidden;
+            font-size: 0.800rem;
+            vertical-align: middle;
+            padding: 8px;
+            margin-left: 8px;
+        }
+        .table th {
+            font-weight: bold;
+        }
+        table.tab td a {
+            font-size: 0.800rem; /* Same font size as table text */
+        }
+        .thead-light th {
+            background-color: #f8f9fa;
+        }
+        th.timestamp {
+            min-width: 150px;
+        }
+        .eval_id {
+            min-width: 110px;
+            text-align: center;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .expandable-text {
+            display: inline;
+        }
+        .ellipsis {
+            display: inline;
+        }
+        .full-text {
+            max-height: 250px; 
+            /* max-width: 600px;  */
+            overflow-y: auto;
+            white-space: pre-wrap;  /* Preserve formatting */
+            background: #f8f9fa;  /* Light grey background for contrast */
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            margin-top: 10px;
+        }
+        .log-content {
+            white-space: pre-wrap; /* Preserves whitespace and formatting */
+            background-color: #f8f9fa;
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .markdown-body {
+                box-sizing: border-box;
+                min-width: 200px;
+                max-width: 980px;
+                margin: 0 auto;
+                padding: 45px;
+        }
+        .extra-small {
+            font-size: 0.85rem; /* Adjust the size to your preference */
+        }
+        #copyCodeSnippet {
+        transition: transform 0.2s, color 0.2s;
+        }
+        
+        #copyCodeSnippet:hover {
+            transform: scale(1.2);
+            color: #007bff; /* Change to your preferred hover color */
+        }
+        pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+        .string { color: green; }
+        .number { color: darkorange; }
+        .boolean { color: blue; }
+        .null { color: magenta; }
+        .key { color: red; }
+        .h6 { font-weight: normal; }
+        .chevron-icon {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            transform: rotate(90deg);
+        }
+        .collapsed .chevron-icon {
+            transform: rotate(0deg);
+        }
+        .treeview ul {
+            list-style: none;
+            padding-left: 10;
+        }
+        .treeview-category {
+            color: inherit; 
+            text-decoration: none; /* Remove the underline */
+        }
+
+        .treeview-category:hover {
+            color: inherit; 
+        }
+        #chunk-size-multi-slider {
+            height: 10px;
+            width: 350px;
+        }
+        #chunk-size-multi-slider .noUi-connect {
+            background: #4970C4;
+        }
+        #chunk-size-multi-slider .noUi-handle {
+            height:18px;
+            width:18px;
+            top:-5px;
+            right:-9px;
+            background: #FFF;
+            cursor: default;
+            border-radius:9px;
+            box-shadow:inset 0 0 1px #FFF,inset 0 1px 7px #EBEBEB,0 3px 6px -3px #BBB
+        }
+        #chunk-size-multi-slider .noUi-touch-area{
+            height:150%;
+            width:150%
+        }
+        #chunk-size-multi-slider .noUi-handle:after,.noUi-handle:before {
+            display:none;
+        }
+        #chunk-size-multi-slider .noUi-tooltip {
+            display: none;
+        }
+        #chunk-size-multi-slider .noUi-active .noUi-tooltip {
+            display: block;
+        }
+        /* .modal-header {
+            background-color: #007bff;
+            color: #fff;
+        } */
+        /* .modal-footer {
+            justify-content: space-between;
+        } */
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white">
+        <div class="container-fluid px-4">
+          <a class="navbar-brand d-flex align-items-center" href="/">
+            <img
+              src="{{ url_for('static', path='ragbuilder_light.png') }}"
+              height="40"
+              alt="RAGBuilder Logo"
+              loading="lazy"
+              class="me-2"
+            />
+          </a>
+          <button
+            data-mdb-collapse-init
+            class="navbar-toggler"
+            type="button"
+            data-mdb-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mt-2 mb-lg-0 align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="https://docs.ragbuilder.io/" target="_blank">Docs</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="https://github.com/KruxAI/ragbuilder/issues/new" target="_blank">Raise Issue</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="https://github.com/KruxAI/ragbuilder/releases">Change Log</a>
+                </li>
+                <li class="nav-item ms-2">
+                    <!-- GitHub Star button -->
+                    <iframe
+                      src="https://ghbtns.com/github-btn.html?user=KruxAI&repo=ragbuilder&type=star&count=true"
+                      frameborder="0"
+                      scrolling="0"
+                      width="200"
+                      height="30"
+                      title="GitHub"
+                      style="margin-left: 5px; margin-top: 17px;"
+                    ></iframe>
+                </li>
+            </ul>
+          </div>
+        </div>
+    </nav>
+        {% block content %}{% endblock %}
+</body>
+</html>
